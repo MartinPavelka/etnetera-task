@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,11 +35,13 @@ public class JavaScriptFrameworkController extends EtnRestController {
 		this.repository = repository;
 	}
 
+//	Find all
 	@GetMapping("/frameworks")
 	public Iterable<JavaScriptFramework> frameworks() {
 		return repository.findAll();
 	}
-	
+
+//	Add one
 	@PostMapping("/add")
 	public ResponseEntity<?> add(@RequestBody JavaScriptFramework framework) {
 		if (framework.getName() != null && framework.getName().length() <= 30) {
@@ -49,41 +50,82 @@ public class JavaScriptFrameworkController extends EtnRestController {
 		}
 		return handleAddError(framework);
 	}
-	
-	
-	
-	@GetMapping("/frameworks/{id}")
-	  Optional<JavaScriptFramework> one(@PathVariable Long id) {
 
-	    return repository.findById(id);
-	  }
-	
+//	In case values are available at creation, initialize object immediately
 	private JavaScriptFramework initFramework(JavaScriptFramework framework) {
 		JavaScriptFramework jsf = new JavaScriptFramework(framework.getName());
-		if (framework.getVersion() != null) jsf.setVersion(framework.getVersion());
-		if (framework.getDeprecationDate() != null) jsf.setDeprecationDate(framework.getDeprecationDate());
-		if (framework.getHypeLevel() != 0) jsf.setHypeLevel(framework.getHypeLevel());
-//			deprecationDate
-//			hypeLevel
-		
+		if (framework.getVersion() != null)
+			jsf.setVersion(framework.getVersion());
+		if (framework.getDeprecationDate() != null)
+			jsf.setDeprecationDate(framework.getDeprecationDate());
+		if (framework.getHypeLevel() != 0)
+			jsf.setHypeLevel(framework.getHypeLevel());
+
 		return framework;
 	}
-	
+
+//	FIND //
+//	Find by id
+	@GetMapping("/frameworks/{id}")
+	Optional<JavaScriptFramework> one(@PathVariable Long id) {
+		return repository.findById(id);
+	}
+
+//	Find by name
+	@GetMapping("/frameworks/name/{name}")
+	public List<JavaScriptFramework> findByName(@PathVariable String name) {
+		List<JavaScriptFramework> frameworkList = new ArrayList<>();
+		for (JavaScriptFramework framework : repository.findAll()) {
+			if (framework.getName().equals(name + ".js") || framework.getName().equals(name))
+				frameworkList.add(framework);
+		}
+		return frameworkList;
+	}
+
+// Find by hype
+	@GetMapping("/frameworks/hype/{hypeLevel}")
+	public List<JavaScriptFramework> findByHype(@PathVariable int hypeLevel) {
+		List<JavaScriptFramework> frameworkList = new ArrayList<>();
+		for (JavaScriptFramework framework : repository.findAll()) {
+			if (framework.getHypeLevel() == hypeLevel)
+				frameworkList.add(framework);
+		}
+		return frameworkList;
+	}
+
+//	DELETE //
+// delete one
+	@DeleteMapping("/frameworks/{id}")
+	void deleteFramework(@PathVariable Long id) {
+		repository.deleteById(id);
+	}
+
+//	delete by name
+	@DeleteMapping("/frameworks/name/{name}")
+	void deleteEmployee(@PathVariable String name) {
+		for (JavaScriptFramework framework : repository.findAll()) {
+			if (framework.getName().equals(name + ".js") || framework.getName().equals(name))
+				repository.deleteById(framework.getId());
+		}
+	}
 
 //	Handling errors here
 	/*
 	 * @param framework - POST request for creating new framework
+	 * 
 	 * @return - Response entity with corresponding body
 	 * 
-	 * */
+	 */
 	private ResponseEntity<?> handleAddError(JavaScriptFramework framework) {
 		Errors errors = new Errors();
 		List<ValidationError> error = new ArrayList<>();
-		
-		if (framework.getName() == null) error.add(new ValidationError("name", "NotEmpty"));
-		else error.add(new ValidationError("name", "Size"));
+
+		if (framework.getName() == null)
+			error.add(new ValidationError("name", "NotEmpty"));
+		else
+			error.add(new ValidationError("name", "Size"));
 		errors.setErrors(error);
 		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 	}
-	
+
 }
