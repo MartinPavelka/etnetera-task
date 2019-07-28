@@ -44,7 +44,7 @@ public class JavaScriptFrameworkController extends EtnRestController {
 
 //	Add one
 	@PostMapping("/add")
-	public ResponseEntity<?> add(@RequestBody JavaScriptFramework framework) {
+	public ResponseEntity<?> addFramework(@RequestBody JavaScriptFramework framework) {
 		if (framework.getName() != null && framework.getName().length() <= 30) {
 			JavaScriptFramework jsf = initFramework(framework);
 			return new ResponseEntity<>(this.repository.save(jsf), HttpStatus.OK);
@@ -65,7 +65,7 @@ public class JavaScriptFrameworkController extends EtnRestController {
 //	FIND //
 //	Find by id
 	@GetMapping("/frameworks/{id}")
-	Optional<JavaScriptFramework> one(@PathVariable Long id) {
+	Optional<JavaScriptFramework> findById(@PathVariable Long id) {
 		return repository.findById(id);
 	}
 
