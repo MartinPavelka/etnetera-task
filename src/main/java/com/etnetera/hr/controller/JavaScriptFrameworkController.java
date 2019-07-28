@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,12 +55,9 @@ public class JavaScriptFrameworkController extends EtnRestController {
 //	In case values are available at creation, initialize object immediately
 	private JavaScriptFramework initFramework(JavaScriptFramework framework) {
 		JavaScriptFramework jsf = new JavaScriptFramework(framework.getName());
-		if (framework.getVersion() != null)
-			jsf.setVersion(framework.getVersion());
-		if (framework.getDeprecationDate() != null)
-			jsf.setDeprecationDate(framework.getDeprecationDate());
-		if (framework.getHypeLevel() != 0)
-			jsf.setHypeLevel(framework.getHypeLevel());
+		if (framework.getVersion() != null) jsf.setVersion(framework.getVersion());
+		if (framework.getDeprecationDate() != null) jsf.setDeprecationDate(framework.getDeprecationDate());
+		if (framework.getHypeLevel() != 0) jsf.setHypeLevel(framework.getHypeLevel());
 
 		return framework;
 	}
@@ -95,18 +93,35 @@ public class JavaScriptFrameworkController extends EtnRestController {
 
 //	DELETE //
 // delete one
-	@DeleteMapping("/frameworks/{id}")
+	@DeleteMapping("/delete/{id}")
 	void deleteFramework(@PathVariable Long id) {
 		repository.deleteById(id);
 	}
 
 //	delete by name
-	@DeleteMapping("/frameworks/name/{name}")
+	@DeleteMapping("/delete/name/{name}")
 	void deleteEmployee(@PathVariable String name) {
 		for (JavaScriptFramework framework : repository.findAll()) {
 			if (framework.getName().equals(name + ".js") || framework.getName().equals(name))
 				repository.deleteById(framework.getId());
 		}
+	}
+	
+// EDIT //
+//	edit by id
+	@PutMapping("put/{id}")
+	JavaScriptFramework editFramework(@RequestBody JavaScriptFramework newFramework, @PathVariable Long id) {
+		return repository.findById(id)
+				.map(framework -> {
+					if (newFramework.getName() != null) framework.setName(newFramework.getName());
+					if (newFramework.getVersion() != null) framework.setVersion(newFramework.getVersion());
+					if (newFramework.getDeprecationDate() != null) framework.setDeprecationDate(newFramework.getDeprecationDate());
+					if (newFramework.getHypeLevel() != 0) framework.setHypeLevel(newFramework.getHypeLevel());
+					return repository.save(framework);
+				}).orElseGet(() -> {
+					newFramework.setId(id);
+			        return repository.save(newFramework);
+			      });
 	}
 
 //	Handling errors here
