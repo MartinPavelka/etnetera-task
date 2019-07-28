@@ -29,10 +29,10 @@ public class JavaScriptFramework {
 	private String version;
 
 	@Column()
-	private LocalDate deprecationDate;
+	private String deprecationDate;
 	
 	@Column()
-	private String hypeLevel;
+	private int hypeLevel;
 
 	public JavaScriptFramework() {
 	}
@@ -82,36 +82,25 @@ public class JavaScriptFramework {
     	return version;
     }
 	
-	public LocalDate getDeprecationDate() {
+	public String getDeprecationDate() {
 		return deprecationDate;
 	}
 	
 	public void setDeprecationDate(String date) {
-		this.deprecationDate = LocalDate.parse( date );
+		this.deprecationDate = date;
 	}
 	
 	public void setHypeLevel(int hype) {
-		switch (hype) {
-		case 1 :
-			hypeLevel = "Meh";
-		case 2 :
-			hypeLevel = "What is dis";
-		case 3 :
-			hypeLevel = "Teach me Senpai!";
-		case 4 :
-			hypeLevel = "Hyped!";
-		case 5 :
-			hypeLevel = "Super Sayian Hype!";
-		}
+		if (hype <= 5 && hype >= 1) this.hypeLevel = hype;
 	}
 	
-	public String getHypeLevel() {
+	public int getHypeLevel() {
 		return hypeLevel;
 	}
 
 	@Override
 	public String toString() {
-		return "JavaScriptFramework [id=" + id + ", name=" + name + ", version=" + version + ", deprecationDate=" + deprecationDate.toString() + ", hypeLevel=" + hypeLevel + "]";
+		return "JavaScriptFramework [id=" + id + ", name=" + name + ", version=" + version + /*", deprecationDate=" + deprecationDate.toString() + ", hypeLevel=" + */ hypeLevel + "]";
 	}
 
 }
